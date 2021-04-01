@@ -1,0 +1,8 @@
+total 28
+drwxrwxr-x 3 caetano caetano 4096 fev 19 15:18 .
+drwxrwxr-x 5 caetano caetano 4096 fev 19 14:46 ..
+-rw-rw-r-- 1 caetano caetano   50 fev 19 15:10 args.sh
+drwxrwxr-x 2 caetano caetano 4096 fev 19 15:18 files
+-rwxrwxr-x 1 caetano caetano  391 fev 19 15:07 flags.sh
+-rw-rw-r-- 1 caetano caetano  207 fev 19 15:18 stdout_stderr.sh
+-rwxrwxr-x 1 caetano caetano  163 fev 19 14:51 string_compare.sh
