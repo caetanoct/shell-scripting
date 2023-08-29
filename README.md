@@ -263,6 +263,327 @@ Command substitutions:
 1. var=`cmd`
 2. var=$(cmd)
 
+# Aliases
+
+- An alias is a shortcut for another command(s). The syntax is `alias alias_name=commands`.
+- The semicolon (;) is used as a delimiter for a series of command, for example: `alias git_information='which git;git --version'`
+- If you just type `alias` you will produce a listing of all available aliases.
+- If you type `unalias git_information` you will remove the alias.
+- You can reference variables in aliases.
+- Aliases takes precedence if another command has the same name, and you can escape the alias using '\', this would allow the original command to be called.
+- Single quotes makes expansion dynamic and Double Quotes make expansion static.
+- A good place to store aliases is on `~/.bashrc`.
+
+# Functions
+
+you can define funteions in two ways:
+
+1) Using `function` keyword:
+
+```bash
+function name {
+.
+}
+```
+
+2) Using `()`:
+
+```bash
+function_name() {
+.
+}
+```
+
+Usually functions are stored in files (scripts). But they can be written directly into the shell prompt (using PS2 and multiline input).
+
+You can also define the function in a single line, but you need to separate commands by semicolons (including on the last command).
+
+# Special Variables
+
+- `$?`
+    - result of the last command, where 0 usually means the command was executed successfully
+
+- `$$`
+    - shell process id (PID)
+
+- `$!`
+    - PID of the last background job
+
+- `$0` to `$9`
+    - Posistional parameters where `$0` is the name of the script or shell.
+
+- `$#`
+    - Number of arguments passed to the command
+
+- `$@` `$*`
+    - Expand to the arguments passed to the command
+
+- `$_`
+    - Expand to the last parameter or the name of the script (amongst others)
+
+## Function Within an Alias
+
+You can put a function inside an alias, for example:
+
+```bash
+alias great_editor='gr8_ed() {echo $1 is a great editor; unset -f gr8_ed;}; gr8_ed'
+```
+
+- `unset -v` is used to unset variables and `unset -f` is used to unset functions.
+
+# Scripts
+
+- When a script is executed, the commands are read and executed line by line (you can also use semicolon to replace line breaks).
+- Scripts are not executed by the main shell, but executed by a sub-shell to avoid messing with environment variables and unwanted changes.
+- If you want to run the script in the current shell session, you need to source it with `. script.sh`.
+    - The shell will be locked and only available when it ends the execution (code available at $?).  to end the current shell when the scrip end, you can preceed with the exec command.
+
+## Variables
+
+- If you use `"$@"` every argument will be enclosed by double quotes
+- If positional parameters are greater than nine, it must be referenced with curly braces as in `${11}`, `${10}`
+- To interact with the user you can use `read` command and `$REPLY` env var
+- You can read simultaneaously using `read NAME SURNAME`
+- You can print messages using `read -p "type your name" NAME`
+- You can always retrieve the Length of a variable (quantity of characters) by prepending it with `#`
+    - Example: `echo ${#OS}`
+
+## Arrays
+
+- Bash has arrays and can be declared using: `declare -a SIZES`
+- You can also declare arrays and populate with `SIZES=( 102 103 )`
+- Array elements **must** be referenced with curly braces, for example: `echo ${SIZES[0]}`
+- To change values, you don't need the curly braces: `SIZES[0]=103`.
+- To retrieve the total number of elements in array you can use the `#` combined with `@` or `*`, for example: `echo ${#SIZES[@]}`
+- Arrays can be declared using the output of a command, for example: TEST=( $(cut -f 2 < /proc/filesystems) )
+    - By default, any terms delimited by space, tab or newline will become an array element.
+
+- Bash treats each char of an environment variable $IFS as a delimiter. 
+
+## Arithmetic Expressions
+
+The builtin command `expr` can be used to perform arithmetic expressions, for example:
+
+```bash
+SUM=`expr $value1 + $value2`
+```
+
+the command `expr` can be rewritten as `$(())`, for example:
+
+```bash
+SUM=$(( $value1 + $value2 ))
+```
+
+## Conditional Execution
+
+- You can separate commands with `&&` to execute commands only if the command on the left did not envounter an error (exit code was equal to 0).
+- The opposite behaviour occurs if commands are separated with `||`. In this case, the command will only be executed if the previous command encountered an error (exit code is not 0).
+- the builtin `if` command in bash, only executes if the command given as argument returns a 0.
+- the utility `test` can be used to assess many different criteria, for example:
+
+```bash
+if test -x /bin/bash ; then
+    echo "/bin/bash is executable"
+fi
+```
+
+> This means test -x will return 0 if the path is executable.
+
+- square brackets `[]` can be used as a substitute to `test`, for example:
+
+```bash
+if [ -x /bin/bash ] ; then
+    echo "is executable!"
+fi
+```
+
+try running:
+```bash
+test -d /etc
+echo $?
+```
+
+## Script Output
+
+- `echo -e` enables interpretation of backslash characters and can be used to output `\t`  or `\n` characters, for example.
+- `printf` utility gives a lot of control over how to display the variables.
+    - the command will take the first argument as the format of the output and placeholders will be replaced by the following arguments, for example:
+        
+        ```bash
+        printf "OS:\t%s\nRAM:\t%d" $0S $(( $FREE / 1024** 2 ))
+        ```
+
+## Using `test` and `[]`
+
+you can use the following arguments to `test`:
+
+**Files/Directories**
+
+- -a path
+    - check if the path exists and it is a file
+- -b path
+    - evaluates if path is a special block file
+- -c path
+    - evaluete if the path is a special character file
+- -d path
+    - evaluates if path is a directory
+- -f path
+    - evalueate if path is a file
+- -g path
+    - evaluates if the path has SGID Permission
+- -h path
+    - evaluates if the path is a symbolic link
+- -L path
+    - evaluates if the path is a symbolic link
+- -k path
+    - evaluates if the path has the sticky bit permission
+- -p path
+    - evaluates if the path is a pipe file
+- -r path
+    - evaluates if the path is readable
+- -s path
+    - evaluates if the path exists and is not empty
+- -S path
+    - evaluates if the path is a socket
+- -t path
+    - evaluates if the path is open in terminal
+- -u path
+    - evaluates if the path has the SUID permission
+- -w path
+    - evaluates if path is writable by the current user
+- -x path
+    - evaluates if path is executable by the current user
+- -O path
+    - evaluates if path is owned by current user
+- -G path
+    - evaluates if path belongs to the effective group of the current user
+- -N path
+    - evaluates if the path has been modified since the last time it was accessed
+- "$path1" -nt "$path2"
+    - evaluates if path1 is newer than path2 according to modified date
+- "$path1" -ot "$path2"
+    - evaluates if path1 is older than path2
+- "$path1" -ef "$path2"
+    - evaluates to true if path is path1 is a hardlink to path2
+
+> it is recommended to enclose variables in double quotes to avoid syntax errors when using `test` command
+
+---
+
+**Variables**
+
+- -z "$VAR"
+    - evaluates if the $VAR is empty (zero size)
+- -n "$var"
+    - evaluates if variable is not empty
+- "$var1" = "$var2" **or** "$var1" == "$var2"
+    - evaluates if var1 and var2 are equal
+- "$var1" != "$var2"
+    - evaluates if var1 and var2 are not equal
+- "$var1" < "$var2"
+    - evaluates if var2 comes before var2 in alphabetical order
+- "$var1" > "$var2"
+    - evaluates if var1 comes after var2 in alphabetical order
+
+---
+
+**Numeric Tests**
+
+- $NUM1 -lt $NUM2
+    - less than
+- $NUM1 -gt $NUM2
+    - greater than
+- $NUM1 -le $NUM2
+    - less or equal
+- $NUM1 -ge $NUM2
+    - greater of equal
+- $NUM1 -eq $NUM2
+    - equal
+- $NUM1 -ne $NUM2
+    - not equal
+
+---
+
+**Modifiers**
+
+- ! expr
+    - evaluate if expr is false
+- EXPR1 -a EXPR2
+    - evaluate if both expr1 and expr2 are true
+- EXPR1 -o EXPR2
+    - evaluate if at least one of the two expressions are true
+
+## `case`
+
+Case is a variation of the *if* construct. it will execute commands if the content of a variable can be found in a list of items separated by pipes and terminated by ).
+
+example:
+
+```bash
+case "$DISTRO" in
+    debian | ubuntu)
+    echo -n ".deb"
+    ;;
+    centos | fedora)
+    echo -n ".rpm"
+    ;;
+    *)
+    echo -n "default"
+    ;;
+esac
+```
+
+you can use `shopt -s nocasematch` before the case construct to enable case-insensitive pattern matching. This command will change a bash buil-in option, you can use `shopt -u` to unset a given option. And it will only take effect for the current shell session, not affecting the parent session.
+
+if searched item is specified in quotes, they will be removed before matching.
+
+## Loops
+
+### For
+
+walks through a list of items 
+
+```bash
+for VAR in LIST
+do
+    commands
+done
+```
+
+- LIST is any sequence of separated terms. The delimiting character splitting items in the list is defined by the **IFS** environment variable.
+- **IFS** Default value is SPACE, TAB and NEWLINE.
+- Sorting shour be done using `LANG=C`
+An alternative format using `(())` is:
+
+```bash
+for (( ID = 0; I < ${#SEQ[@]}; ID++ ))
+do
+    commands
+done
+```
+
+### Until
+
+```bash
+until [ $ID -e ${#SEQ[@]}]
+do
+    commands
+done
+```
+
+### While
+
+```bash
+while [ $ID -lt ${#SEQ[@]} ]
+do
+    commands
+done
+```
+
+- `mapfile -t LIST < $FILE` will storee in list each line and remove trailing newline characters.
+- You can reference unicode characters using `\u2192` for right arrow character, for example.
+
+
 # References:
 
 1. [Linux LPIC-101 Learning Material](https://learning.lpi.org/en/learning-materials/learning-materials/)
